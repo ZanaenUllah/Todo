@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import colors from "./Colors";
 import { AntDesign } from "@expo/vector-icons";
-import Colors from "./Colors";
 import tempData from "./tempData";
 import TodoList from "./components/TodoList";
 import AddListModal from "./components/AddListModal";
@@ -17,11 +16,33 @@ import AddListModal from "./components/AddListModal";
 export default class App extends Component {
   state = {
     addTodoVisible: false,
+    lists: tempData,
   };
 
   toogleAddTodoModal() {
     this.setState({ addTodoVisible: !this.state.addTodoVisible });
   }
+
+  renderList = (list) => {
+    return <TodoList list={list} updateList={this.updateList} />;
+  };
+
+  addList = (list) => {
+    this.setState({
+      lists: [
+        ...this.state.lists,
+        { ...list, id: this.state.lists.length + 1, todos: [] },
+      ],
+    });
+  };
+
+  updateList = (list) => {
+    this.setState({
+      lists: this.state.lists.map((item) => {
+        return item.id === list.id ? list : item;
+      }),
+    });
+  };
 
   render() {
     return (
@@ -31,7 +52,10 @@ export default class App extends Component {
           visible={this.state.addTodoVisible}
           onRequestClose={() => this.toogleAddTodoModal()}
         >
-          <AddListModal closeModal={() => this.toogleAddTodoModal()} />
+          <AddListModal
+            closeModal={() => this.toogleAddTodoModal()}
+            addList={this.addList}
+          />
         </Modal>
 
         <View style={{ flexDirection: "row" }}>
@@ -47,7 +71,7 @@ export default class App extends Component {
             style={styles.addList}
             onPress={() => this.toogleAddTodoModal()}
           >
-            <AntDesign name="plus" size={16} color={Colors.blue} />
+            <AntDesign name="plus" size={16} color={colors.blue} />
           </TouchableOpacity>
 
           <Text style={styles.add}>Add List</Text>
@@ -55,11 +79,12 @@ export default class App extends Component {
 
         <View style={{ height: 275, paddingLeft: 32 }}>
           <FlatList
-            data={tempData}
+            data={this.state.lists}
             keyExtractor={(item) => item.name}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => <TodoList list={item} />}
+            renderItem={({ item }) => this.renderList(item)}
+            keyboardShouldPersistTaps="always"
           />
         </View>
       </View>

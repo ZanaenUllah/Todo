@@ -12,12 +12,22 @@ import { AntDesign } from "@expo/vector-icons";
 import tempData from "./tempData";
 import TodoList from "./components/TodoList";
 import AddListModal from "./components/AddListModal";
+import Fire from "./Fire";
 
 export default class App extends Component {
   state = {
     addTodoVisible: false,
     lists: tempData,
+    user: {},
   };
+
+  componentDidMount() {
+    firebase = new Fire((error, user) => {
+      if (error) {
+        return alert("Uh oh, something went worng!");
+      }
+    });
+  }
 
   toogleAddTodoModal() {
     this.setState({ addTodoVisible: !this.state.addTodoVisible });
@@ -57,6 +67,10 @@ export default class App extends Component {
             addList={this.addList}
           />
         </Modal>
+
+        <Viwe>
+          <Text>User: {this.state.user.uid}</Text>
+        </Viwe>
 
         <View style={{ flexDirection: "row" }}>
           <View style={styles.divider} />
